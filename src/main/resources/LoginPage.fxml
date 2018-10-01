@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainPackage.Controller">
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <Pane prefHeight="300.0" prefWidth="400.0">
+         <children>
+            <Label fx:id="LoginTitle" layoutX="77.0" layoutY="64.0" text="YouTube Subscription Analyzer" textAlignment="CENTER">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Label>
+            <TextField fx:id="UserIDInputBox" focusTraversable="false" layoutX="19.0" layoutY="125.0" onKeyPressed="#enterKeyPressed" prefHeight="25.0" prefWidth="349.0" promptText="Enter the URL for your YouTube channel here" />
+            <Button fx:id="GoButton" defaultButton="false" onMouseClicked="#goButtonClicked" layoutX="177.0" layoutY="197.0" mnemonicParsing="false" text="Go" />
+         </children>
+      </Pane>
+   </children>
+</GridPane>
