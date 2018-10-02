@@ -1,12 +1,17 @@
 package MainPackage;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 public class SUB_PAGE_CONTROLLER {
 
@@ -20,37 +25,54 @@ public class SUB_PAGE_CONTROLLER {
     private Label subPageTitle;
 
     @FXML
-    private TableView<?> subTable;
+    private TableView<Subscription> subTable;
 
-    @FXML
-    private TableColumn<?, ?> nameC;
+        @FXML
+        private TableColumn<Subscription, String> nameC;
 
-    @FXML
-    private TableColumn<?, ?> subCountC;
+        @FXML
+        private TableColumn<Subscription, Number> subCountC;
 
-    @FXML
-    private TableColumn<?, ?> viewsC;
+        @FXML
+        private TableColumn<Subscription, Number> viewsC;
 
-    @FXML
-    private TableColumn<?, ?> earningsC;
+        @FXML
+        private TableColumn<Subscription, ?> earningsC;
 
-    @FXML
-    private TableColumn<?, ?> minC;
+            @FXML
+            private TableColumn<Subscription, Number> minC;
 
-    @FXML
-    private TableColumn<?, ?> maxC;
+            @FXML
+            private TableColumn<Subscription, Number> maxC;
 
-    @FXML
-    private TableColumn<?, ?> countryC;
+        @FXML
+        private TableColumn<Subscription, String> countryC;
 
-    @FXML
-    private TableColumn<?, ?> dateC;
+        @FXML
+        private TableColumn<Subscription, String> dateC;
 
-    @FXML
-    private TableColumn<?, ?> averageC;
+        @FXML
+        private TableColumn<Subscription, Number> averageC;
 
     @FXML
     private Button moreDataButton;
+
+    private Scene loginScene;
+    private Controller cont;
+
+    public void setLoginScene(Scene scene, Controller controller){
+        loginScene = scene;
+
+        cont = controller;
+    }
+
+    public void goBackClicked(MouseEvent mouseEvent) {
+        cont.reset();
+        Stage primaryStage = (Stage)((Node)mouseEvent.getSource()).getScene().getWindow();
+        primaryStage.setScene(loginScene);
+    }
+
+    public HashMap<String, String> listOfSubIDs = new HashMap<String, String>();
 
     @FXML
     void initialize() {

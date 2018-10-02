@@ -16,17 +16,25 @@ public class Subscription {
 
     private final SimpleStringProperty channelID;
     private final SimpleStringProperty name;
-    /*private final SimpleStringProperty country;
-    private final SimpleStringProperty genre;*/
+    private final SimpleStringProperty country;
+    private final SimpleStringProperty genre;
     private final SimpleIntegerProperty subCount;
     private final SimpleLongProperty viewCount;
     private final SimpleLongProperty averageVidViews;
     private final SimpleIntegerProperty uploadCount;
-    /*private final SimpleDoubleProperty minInc;
+    private final SimpleDoubleProperty minInc;
     private final SimpleDoubleProperty maxInc;
-    private String tableRow;*/
     private Document socialBladeDoc;
+    private Date dateC;
 
+    //private final SimpleStringProperty
+    private SimpleStringProperty dateC_string;
+
+    /**
+     * Recieves the channel id code for a youtube channel, then scrapes the social blade page for data about that channel
+     *
+     * @param channelID the base64 channel ID found in youtube URL
+     */
     public Subscription(String channelID)
     {
         this.channelID = new SimpleStringProperty(channelID);
@@ -48,7 +56,73 @@ public class Subscription {
 
         averageVidViews = new SimpleLongProperty(viewCount.getValue() / uploadCount.getValue());
 
+        country = new SimpleStringProperty(socialBladeDoc.select("#youtube-user-page-country").text());
 
+        genre = new SimpleStringProperty(socialBladeDoc.select("#youtube-stats-header-channeltype").text());
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        dateC = formatDate(socialBladeDoc);
+        dateC_string = new SimpleStringProperty(df.format(dateC).toString());
+
+        String minMax = socialBladeDoc.select("body > div:nth-child(18) > div:nth-child(4) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > p:nth-child(1)").text();
+
+        String min = minMax.substring(1, minMax.indexOf('-') - 1);
+        String max = minMax.substring(minMax.lastIndexOf('$') + 1);
+
+        minInc = calcMoney(min);
+        maxInc = calcMoney(max);
     }
+
+    /**
+     * finds the date the channel was created in the document (as a string) and converts the string to a Date object
+     *
+     * @param socialBladeDoc the document for the scraped socialblade page
+     * @return a date object for the date the channel was created
+     */
+    private Date formatDate(Document socialBladeDoc) {
+        String dateUF = socialBladeDoc.select("#YouTubeUserTopInfoBlock > div.YouTubeUserTopInfo > span:contains(User Created) ~ span[style]").text();
+
+        if (dateUF.length() == 13) {
+            dateUF = dateUF.substring(0, 4) + "0" + dateUF.substring(4);
+        }
+
+        dateUF = dateUF.substring(0, 6) + dateUF.substring(9);
+
+        SimpleDateFormat df = new SimpleDateFormat("MMM dd yyyy");
+
+        Date date = null;
+        try {
+            date = df.parse(dateUF);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return (date);
+    }//end formatDate
+
+    /**
+     * converts string to double, and multiplies by the appropriate number based on a following character
+     *
+     * @param unF unformatted string
+     * @return number of dollars as a double
+     */
+    private SimpleDoubleProperty calcMoney(String unF) {
+        double dMoney;
+
+        if ("K".equals(unF.substring(unF.length() - 1))) {
+            unF = unF.substring(0, unF.length() - 1);
+            dMoney = Double.parseDouble(unF) * 1000;
+
+        } else if ("M".equals(unF.substring(unF.length() - 1))) {
+            unF = unF.substring(0, unF.length() - 1);
+            dMoney = Double.parseDouble(unF) * 1000000;
+
+        } else {
+            dMoney = Double.parseDouble(unF);
+
+        }
+
+        return (new SimpleDoubleProperty(dMoney));
+    }//end calcMoney
 
 }

@@ -1,6 +1,8 @@
 package MainPackage;
 
 
+import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.fxml.FXML;
@@ -20,6 +22,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 
 import com.google.api.services.youtube.model.*;
 import com.google.api.services.youtube.YouTube;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,21 +70,34 @@ public class Controller {
     @FXML
     void enterKeyPressed(KeyEvent event){
         if(event.getCode().equals(KeyCode.ENTER)){
-            nextPage();
+            //nextPage();
         }
     }
 
     @FXML
     void goButtonClicked(MouseEvent mouseEvent){
-        checkChannel();
+        checkChannel(mouseEvent);
     }
 
-    void nextPage() {
+    private Scene subListScene;
+
+    private SUB_PAGE_CONTROLLER subListCont;
+
+    /**
+     * @param scene JavaFX scene for the list of channels scraped
+     * @param subCont controller for the sublist scene
+     */
+    public void setSubListScene(Scene scene, SUB_PAGE_CONTROLLER subCont) {
+        subListScene = scene;
+        subListCont = subCont;
+    }// end setSubListScene
+
+    /*void nextPage() {
 
             checkChannel();
-    }
+    }*/
 
-    public void checkChannel(){
+    public void checkChannel(MouseEvent mouseEvent){
 
         Properties properties = new Properties();
         try {
@@ -116,7 +132,7 @@ public class Controller {
             subPage.setFields("items(snippet(resourceId/channelId,title)),nextPageToken");
 
             SubscriptionListResponse response = subPage.execute();
-            System.out.println(response);
+            //System.out.println(response);
 
             addSubs(response);
 
@@ -128,12 +144,19 @@ public class Controller {
                 addSubs(response);
             }
             while(response.getNextPageToken() != null);
-            System.out.println(response);
+            /*System.out.println(response);
 
             for (String x: listOfIds) {
                 System.out.println(listOfSubs.get(x) + ": " + x);
             }
-            System.out.println("done");
+            System.out.println("done");*/
+
+            // switching scenes to show subList
+            Stage primaryStage = (Stage)((Node)mouseEvent.getSource()).getScene().getWindow();
+            primaryStage.setMinHeight(500);
+            primaryStage.setMinWidth(1100);
+            subListCont.listOfSubIDs.putAll(listOfSubs);
+            primaryStage.setScene(subListScene);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -156,5 +179,9 @@ public class Controller {
                 listOfSubs.put(matchID.group(), matchTitles.group());
             }while(matchID.find() && matchTitles.find());
         }
+    }
+
+    public void reset() {
+
     }
 }
