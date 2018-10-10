@@ -9,15 +9,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.TextField?>
 <VBox minHeight="500.0" minWidth="1100.0" prefHeight="500.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainPackage.SUB_PAGE_CONTROLLER">
     <children>
         <AnchorPane maxHeight="1080.0" maxWidth="1920.0" prefHeight="500.0" prefWidth="1100.0" VBox.vgrow="ALWAYS">
             <children>
-                <Label fx:id="subPageTitle" layoutX="400" layoutY="14.0" text="YouTube Subscriptions" textAlignment="CENTER">
-                    <font>
-                        <Font size="24.0" />
-                    </font>
-                </Label>
                 <ScrollPane layoutX="20.0" layoutY="64.0" prefHeight="390.0" prefWidth="1040.0">
                     <content>
                         <TableView fx:id="subTable" editable="true" prefHeight="380.0" prefWidth="1030.0" scaleShape="false" tableMenuButtonVisible="true">
@@ -41,6 +37,8 @@
                     </content>
                 </ScrollPane>
                 <Button fx:id="moreDataButton" layoutX="900.0" layoutY="19.0" mnemonicParsing="false" text="Show More Data" onMouseClicked="#moreDataClicked"/>
+                <TextField fx:id="UserIDInputBox" focusTraversable="false" layoutX="20.0" layoutY="19.0" prefHeight="25.0" prefWidth="349.0" promptText="Enter the URL for your YouTube channel here" />
+                <Button fx:id="GoButton" onMouseClicked="#goButtonClicked" layoutX="375.0" layoutY="19.0" mnemonicParsing="false" text="Go" />
             </children>
         </AnchorPane>
     </children>

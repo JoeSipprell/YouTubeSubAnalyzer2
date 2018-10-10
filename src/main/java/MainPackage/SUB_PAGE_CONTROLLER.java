@@ -1,10 +1,24 @@
 package MainPackage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.SubscriptionListResponse;
 import com.google.common.collect.Table;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,11 +37,33 @@ public class SUB_PAGE_CONTROLLER {
     @FXML
     private ResourceBundle resources;
 
-    @FXML
-    private URL location;
+    /** Application name. */
+    final String APPLICATION_NAME = "YouTubeSubAnalyzer";
+
+    /**
+     * Define a global variable that identifies the name of a file that
+     * contains the developer's API key.
+     */
+    final String PROPERTIES_FILENAME = "youtube.properties";
+
+    /** Global instance of the {@link FileDataStoreFactory}. */
+    //private static FileDataStoreFactory DATA_STORE_FACTORY;
+
+    /** Global instance of the JSON factory. */
+    final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    /** Global instance of the HTTP transport. */
+    HttpTransport HTTP_TRANSPORT;
+
+    String channelID = "UCb81rLqF7RVbnqmOEO0IGMg";
+    //String channelID = "UC_YqzcTtBqrVCbfUwzPlYaw";
+
+    YouTube youtube;
+
+    HashMap<String, String> listOfSubs = new HashMap<String, String>();
 
     @FXML
-    private Label subPageTitle;
+    private URL location;
 
     @FXML
     private TableView<Subscription> subTable;
@@ -68,24 +104,15 @@ public class SUB_PAGE_CONTROLLER {
     @FXML
     private Button moreDataButton;
 
-    private Scene loginScene;
-    private Controller cont;
+    @FXML
+    private TextField UserIDInputBox;
 
-    public void setLoginScene(Scene scene, Controller controller){
-        loginScene = scene;
-
-        cont = controller;
-    }
-
-    public void goBackClicked(MouseEvent mouseEvent) {
-        cont.reset();
-        Stage primaryStage = (Stage)((Node)mouseEvent.getSource()).getScene().getWindow();
-        primaryStage.setScene(loginScene);
-    }
+    @FXML
+    private Button GoButton;
 
     @FXML
     public void moreDataClicked(MouseEvent mouseEvent){
-        scrapeSocialBlade();
+        //this is where a page with more statistics would load
     }
 
     public ArrayList<String> listOfSubIDs = new ArrayList<String>();
@@ -94,9 +121,6 @@ public class SUB_PAGE_CONTROLLER {
 
     SortedList<Subscription> channelList = new SortedList<Subscription>(observableList);
 
-    public void setButtonText(String text){
-        moreDataButton.setText(text);
-    }
 
     public void scrapeSocialBlade() {
         //nameColumn.setCellValueFactory(cellData -> cellData.getValue().getName());
@@ -169,7 +193,6 @@ public class SUB_PAGE_CONTROLLER {
 
     @FXML
     void initialize() {
-        assert subPageTitle != null : "fx:id=\"subPageTitle\" was not injected: check your FXML file 'Page1.fxml'.";
         assert subTable != null : "fx:id=\"subTable\" was not injected: check your FXML file 'Page1.fxml'.";
         assert nameC != null : "fx:id=\"nameC\" was not injected: check your FXML file 'Page1.fxml'.";
         assert subCountC != null : "fx:id=\"subCountC\" was not injected: check your FXML file 'Page1.fxml'.";
@@ -182,5 +205,89 @@ public class SUB_PAGE_CONTROLLER {
         assert averageC != null : "fx:id=\"averageC\" was not injected: check your FXML file 'Page1.fxml'.";
         assert moreDataButton != null : "fx:id=\"moreDataButton\" was not injected: check your FXML file 'Page1.fxml'.";
 
+    }
+
+    @FXML
+    public void goButtonClicked(MouseEvent mouseEvent) {
+        scrapeYouTubeChannelIDs(mouseEvent);
+    }
+
+    public void scrapeYouTubeChannelIDs(MouseEvent mouseEvent){
+
+        Properties properties = new Properties();
+        try {
+            InputStream in = Controller.class.getResourceAsStream("/" + PROPERTIES_FILENAME);
+            properties.load(in);
+        } catch (IOException e) {
+            System.err.println("There was an error reading " + PROPERTIES_FILENAME + ": " + e.getCause()
+                    + " : " + e.getMessage());
+            System.exit(1);
+        }
+
+        HTTP_TRANSPORT = new NetHttpTransport();
+        youtube = new YouTube.Builder(HTTP_TRANSPORT, JSON_FACTORY, new HttpRequestInitializer() {
+            public void initialize(HttpRequest request) throws IOException {
+            }
+        }).setApplicationName(APPLICATION_NAME).build();
+
+        String apiKey = properties.getProperty("youtube.apikey");
+
+        try{
+            HashMap<String, String> parameters = new HashMap<String, String>();
+            parameters.put("part", "snippet");
+            parameters.put("channelId", channelID);
+
+            YouTube.Subscriptions.List subPage = youtube.subscriptions().list(parameters.get("part").toString());
+            if (parameters.containsKey("channelId") && parameters.get("channelId") != "") {
+                subPage.setChannelId(parameters.get("channelId"));
+            }
+
+            subPage.setKey(apiKey);
+
+            subPage.setFields("items(snippet(resourceId/channelId,title)),nextPageToken");
+
+            SubscriptionListResponse response = subPage.execute();
+            //System.out.println(response);
+
+            addSubs(response);
+
+            do{
+                subPage.setPageToken(response.getNextPageToken());
+
+                response = subPage.execute();
+
+                addSubs(response);
+            }
+            while(response.getNextPageToken() != null);
+            System.out.println(response);
+
+            for (String x: listOfSubIDs) {
+                System.out.println(listOfSubs.get(x) + ": " + x);
+            }
+            System.out.println("done");
+
+            scrapeSocialBlade();
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void addSubs(SubscriptionListResponse response){
+
+        Pattern findIDs = Pattern.compile("(?<=channelId\":\")(.*?)(?=\"})");
+        Matcher matchID = findIDs.matcher(response.toString());
+
+        Pattern findTitles = Pattern.compile("(?<=title\":\")(.*?)(?=\"})");
+        Matcher matchTitles = findTitles.matcher(response.toString());
+
+
+        if (matchID.find() && matchTitles.find()) {
+            do{
+                listOfSubIDs.add(matchID.group());
+                listOfSubs.put(matchID.group(), matchTitles.group());
+            }while(matchID.find() && matchTitles.find());
+        }
     }
 }

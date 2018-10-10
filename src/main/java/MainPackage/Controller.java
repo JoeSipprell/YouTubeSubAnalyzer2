@@ -75,10 +75,7 @@ public class Controller {
         }
     }
 
-    @FXML
-    void goButtonClicked(MouseEvent mouseEvent){
-        checkChannel(mouseEvent);
-    }
+
 
     private Scene subListScene;
 
