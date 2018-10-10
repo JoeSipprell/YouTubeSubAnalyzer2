@@ -1,17 +1,22 @@
 package MainPackage;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+
+import com.google.common.collect.Table;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.concurrent.*;
 
 public class SUB_PAGE_CONTROLLER {
 
@@ -54,6 +59,12 @@ public class SUB_PAGE_CONTROLLER {
         @FXML
         private TableColumn<Subscription, Number> averageC;
 
+        @FXML
+        private TableColumn<Subscription, Number> upCountC;
+
+        @FXML
+        private TableColumn<Subscription, String> genreC;
+
     @FXML
     private Button moreDataButton;
 
@@ -72,7 +83,89 @@ public class SUB_PAGE_CONTROLLER {
         primaryStage.setScene(loginScene);
     }
 
-    public HashMap<String, String> listOfSubIDs = new HashMap<String, String>();
+    @FXML
+    public void moreDataClicked(MouseEvent mouseEvent){
+        scrapeSocialBlade();
+    }
+
+    public ArrayList<String> listOfSubIDs = new ArrayList<String>();
+
+    ObservableList<Subscription> observableList = FXCollections.observableArrayList();
+
+    SortedList<Subscription> channelList = new SortedList<Subscription>(observableList);
+
+    public void setButtonText(String text){
+        moreDataButton.setText(text);
+    }
+
+    public void scrapeSocialBlade() {
+        //nameColumn.setCellValueFactory(cellData -> cellData.getValue().getName());
+        nameC.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        subCountC.setCellValueFactory(cellData -> cellData.getValue().subCountProperty());
+        viewsC.setCellValueFactory(cellData -> cellData.getValue().viewCountProperty());
+        minC.setCellValueFactory(cellData -> cellData.getValue().minIncProperty());
+        maxC.setCellValueFactory(cellData -> cellData.getValue().maxIncProperty());
+        countryC.setCellValueFactory(cellData -> cellData.getValue().countryProperty());
+        dateC.setCellValueFactory(cellData -> cellData.getValue().dateC_stringProperty());
+        averageC.setCellValueFactory(cellData -> cellData.getValue().averageVidViewsProperty());
+        upCountC.setCellValueFactory(cellData -> cellData.getValue().uploadCountProperty());
+        genreC.setCellValueFactory(cellData -> cellData.getValue().genreProperty());
+
+        minC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new MoneyFormatCell();
+            }
+        });
+
+        maxC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new MoneyFormatCell();
+            }
+        });
+
+        subCountC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new CommaNumberFormatCell();
+            }
+        });
+
+        viewsC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new CommaNumberFormatCell();
+            }
+        });
+
+        averageC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new CommaNumberFormatCell();
+            }
+        });
+
+        upCountC.setCellFactory(new Callback<TableColumn<Subscription, Number>, TableCell<Subscription, Number>>() {
+            @Override
+            public TableCell<Subscription, Number> call(TableColumn<Subscription, Number> list) {
+                return new CommaNumberFormatCell();
+            }
+        });
+
+
+        subTable.setItems(observableList);
+
+        //moreDataButton.setText("Loading...");
+        new Thread(() -> {
+            for (String channelID :
+                    listOfSubIDs) {
+                observableList.add(new Subscription(channelID));
+            }
+        }).start();
+
+
+    }
 
     @FXML
     void initialize() {

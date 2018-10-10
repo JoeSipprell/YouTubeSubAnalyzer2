@@ -14,13 +14,101 @@ import java.util.Date;
 
 public class Subscription {
 
+    public String getChannelID() {
+        return channelID.get();
+    }
+
+    public SimpleStringProperty channelIDProperty() {
+        return channelID;
+    }
+
+    public String getName() {
+        return name.get();
+    }
+
+    public SimpleStringProperty nameProperty() {
+        return name;
+    }
+
+    public String getCountry() {
+        return country.get();
+    }
+
+    public SimpleStringProperty countryProperty() {
+        return country;
+    }
+
+    public String getGenre() {
+        return genre.get();
+    }
+
+    public SimpleStringProperty genreProperty() {
+        return genre;
+    }
+
+    public int getSubCount() {
+        return subCount.get();
+    }
+
+    public SimpleIntegerProperty subCountProperty() {
+        return subCount;
+    }
+
+    public long getViewCount() {
+        return viewCount.get();
+    }
+
+    public SimpleLongProperty viewCountProperty() {
+        return viewCount;
+    }
+
+    public long getAverageVidViews() {
+        return averageVidViews.get();
+    }
+
+    public SimpleLongProperty averageVidViewsProperty() {
+        return averageVidViews;
+    }
+
+    public int getUploadCount() {
+        return uploadCount.get();
+    }
+
+    public SimpleIntegerProperty uploadCountProperty() {
+        return uploadCount;
+    }
+
+    public double getMinInc() {
+        return minInc.get();
+    }
+
+    public SimpleDoubleProperty minIncProperty() {
+        return minInc;
+    }
+
+    public double getMaxInc() {
+        return maxInc.get();
+    }
+
+    public SimpleDoubleProperty maxIncProperty() {
+        return maxInc;
+    }
+
+    public String getDateC_string() {
+        return dateC_string.get();
+    }
+
+    public SimpleStringProperty dateC_stringProperty() {
+        return dateC_string;
+    }
+
     private final SimpleStringProperty channelID;
     private final SimpleStringProperty name;
     private final SimpleStringProperty country;
     private final SimpleStringProperty genre;
     private final SimpleIntegerProperty subCount;
     private final SimpleLongProperty viewCount;
-    private final SimpleLongProperty averageVidViews;
+    private SimpleLongProperty averageVidViews;
     private final SimpleIntegerProperty uploadCount;
     private final SimpleDoubleProperty minInc;
     private final SimpleDoubleProperty maxInc;
@@ -54,7 +142,11 @@ public class Subscription {
 
         uploadCount = new SimpleIntegerProperty(Integer.parseInt(socialBladeDoc.select("#youtube-stats-header-uploads").text()));
 
-        averageVidViews = new SimpleLongProperty(viewCount.getValue() / uploadCount.getValue());
+        try {
+            averageVidViews = new SimpleLongProperty(viewCount.getValue() / uploadCount.getValue());
+        }catch(ArithmeticException e){
+            averageVidViews = new SimpleLongProperty(-1);
+        }
 
         country = new SimpleStringProperty(socialBladeDoc.select("#youtube-user-page-country").text());
 

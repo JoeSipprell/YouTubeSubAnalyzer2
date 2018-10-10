@@ -51,6 +51,7 @@ public class Controller {
     HttpTransport HTTP_TRANSPORT;
 
     String channelID = "UCb81rLqF7RVbnqmOEO0IGMg";
+    //String channelID = "UC_YqzcTtBqrVCbfUwzPlYaw";
 
     YouTube youtube;
 
@@ -144,18 +145,19 @@ public class Controller {
                 addSubs(response);
             }
             while(response.getNextPageToken() != null);
-            /*System.out.println(response);
+            System.out.println(response);
 
             for (String x: listOfIds) {
                 System.out.println(listOfSubs.get(x) + ": " + x);
             }
-            System.out.println("done");*/
+            System.out.println("done");
 
             // switching scenes to show subList
             Stage primaryStage = (Stage)((Node)mouseEvent.getSource()).getScene().getWindow();
             primaryStage.setMinHeight(500);
             primaryStage.setMinWidth(1100);
-            subListCont.listOfSubIDs.putAll(listOfSubs);
+            subListCont.listOfSubIDs.addAll(listOfIds);
+
             primaryStage.setScene(subListScene);
         }
         catch(Exception e){

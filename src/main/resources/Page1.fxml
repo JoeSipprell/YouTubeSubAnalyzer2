@@ -33,13 +33,14 @@
                                 </TableColumn>
                                 <TableColumn fx:id="countryC" editable="false" maxWidth="246.4000122070313" minWidth="0.0" prefWidth="116.79998779296875" resizable="true" text="Country" visible="false"/>
                                 <TableColumn fx:id="dateC" editable="false" prefWidth="161" text="Date Created" />
-                                <TableColumn fx:id="upCount" editable="false" prefWidth="75.0" text="Uploads" visible="false" />
+                                <TableColumn fx:id="upCountC" editable="false" prefWidth="75.0" text="Uploads" visible="false" />
                                 <TableColumn fx:id="averageC" prefWidth="75.0" text="Mean Views/Video" visible="false" />
+                                <TableColumn fx:id="genreC" editable="false" prefWidth="161" text="Genre" visible="false" />
                             </columns>
                         </TableView>
                     </content>
                 </ScrollPane>
-                <Button fx:id="moreDataButton" layoutX="900.0" layoutY="19.0" mnemonicParsing="false" text="Show More Data" />
+                <Button fx:id="moreDataButton" layoutX="900.0" layoutY="19.0" mnemonicParsing="false" text="Show More Data" onMouseClicked="#moreDataClicked"/>
             </children>
         </AnchorPane>
     </children>
