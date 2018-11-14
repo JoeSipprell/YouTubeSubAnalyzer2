@@ -103,15 +103,15 @@ public class Subscription {
     }
 
     private final SimpleStringProperty channelID;
-    private final SimpleStringProperty name;
-    private final SimpleStringProperty country;
-    private final SimpleStringProperty genre;
-    private final SimpleIntegerProperty subCount;
-    private final SimpleLongProperty viewCount;
+    private SimpleStringProperty name;
+    private SimpleStringProperty country;
+    private SimpleStringProperty genre;
+    private SimpleIntegerProperty subCount;
+    private SimpleLongProperty viewCount;
     private SimpleLongProperty averageVidViews;
-    private final SimpleIntegerProperty uploadCount;
-    private final SimpleDoubleProperty minInc;
-    private final SimpleDoubleProperty maxInc;
+    private SimpleIntegerProperty uploadCount;
+    private SimpleDoubleProperty minInc;
+    private SimpleDoubleProperty maxInc;
     private Document socialBladeDoc;
     private Date dateC;
 
@@ -123,7 +123,7 @@ public class Subscription {
      *
      * @param channelID the base64 channel ID found in youtube URL
      */
-    public Subscription(String channelID)
+    public Subscription(String channelID, String cTitle)
     {
         this.channelID = new SimpleStringProperty(channelID);
         String socialBladeURL = "https://socialblade.com/youtube/channel/" + channelID;
@@ -134,35 +134,39 @@ public class Subscription {
             e.printStackTrace();
         }
 
-        name = new SimpleStringProperty( socialBladeDoc.select("#YouTubeUserTopInfoBlockTop > div:nth-child(1) > h1").first().text());
-
-        subCount = new SimpleIntegerProperty(Integer.parseInt(socialBladeDoc.select("#youtube-stats-header-subs").text()));
-
-        viewCount = new SimpleLongProperty(Long.parseLong(socialBladeDoc.select("#youtube-stats-header-views").text()));
-
-        uploadCount = new SimpleIntegerProperty(Integer.parseInt(socialBladeDoc.select("#youtube-stats-header-uploads").text()));
-
         try {
-            averageVidViews = new SimpleLongProperty(viewCount.getValue() / uploadCount.getValue());
-        }catch(ArithmeticException e){
-            averageVidViews = new SimpleLongProperty(-1);
+            name = new SimpleStringProperty( socialBladeDoc.select("#YouTubeUserTopInfoBlockTop > div:nth-child(1) > h1").first().text());
+
+            subCount = new SimpleIntegerProperty(Integer.parseInt(socialBladeDoc.select("#youtube-stats-header-subs").text()));
+
+            viewCount = new SimpleLongProperty(Long.parseLong(socialBladeDoc.select("#youtube-stats-header-views").text()));
+
+            uploadCount = new SimpleIntegerProperty(Integer.parseInt(socialBladeDoc.select("#youtube-stats-header-uploads").text()));
+
+            try {
+                averageVidViews = new SimpleLongProperty(viewCount.getValue() / uploadCount.getValue());
+            }catch(ArithmeticException e){
+                averageVidViews = new SimpleLongProperty(-1);
+            }
+
+            country = new SimpleStringProperty(socialBladeDoc.select("#youtube-user-page-country").text());
+
+            genre = new SimpleStringProperty(socialBladeDoc.select("#youtube-stats-header-channeltype").text());
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            dateC = formatDate(socialBladeDoc);
+            dateC_string = new SimpleStringProperty(df.format(dateC).toString());
+
+            String minMax = socialBladeDoc.select("body > div:nth-child(18) > div:nth-child(4) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > p:nth-child(1)").text();
+
+            String min = minMax.substring(1, minMax.indexOf('-') - 1);
+            String max = minMax.substring(minMax.lastIndexOf('$') + 1);
+
+            minInc = calcMoney(min);
+            maxInc = calcMoney(max);
+        } catch (NullPointerException e) {
+            name = new SimpleStringProperty("Untracked: " + cTitle);
         }
-
-        country = new SimpleStringProperty(socialBladeDoc.select("#youtube-user-page-country").text());
-
-        genre = new SimpleStringProperty(socialBladeDoc.select("#youtube-stats-header-channeltype").text());
-
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        dateC = formatDate(socialBladeDoc);
-        dateC_string = new SimpleStringProperty(df.format(dateC).toString());
-
-        String minMax = socialBladeDoc.select("body > div:nth-child(18) > div:nth-child(4) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > p:nth-child(1)").text();
-
-        String min = minMax.substring(1, minMax.indexOf('-') - 1);
-        String max = minMax.substring(minMax.lastIndexOf('$') + 1);
-
-        minInc = calcMoney(min);
-        maxInc = calcMoney(max);
     }
 
     /**

@@ -184,7 +184,7 @@ public class SUB_PAGE_CONTROLLER {
         new Thread(() -> {
             for (String channelID :
                     listOfSubIDs) {
-                observableList.add(new Subscription(channelID));
+                observableList.add(new Subscription(channelID, listOfSubs.get(channelID)));
             }
         }).start();
 
@@ -209,7 +209,17 @@ public class SUB_PAGE_CONTROLLER {
 
     @FXML
     public void goButtonClicked(MouseEvent mouseEvent) {
-        scrapeYouTubeChannelIDs(mouseEvent);
+        Pattern idPattern = Pattern.compile("([A-Z])\\w+");
+        Matcher idMatcher = idPattern.matcher(UserIDInputBox.getText());
+        if (idMatcher.find()) {
+            channelID = idMatcher.group();
+            scrapeYouTubeChannelIDs(mouseEvent);
+        }
+        else
+        {
+            System.out.println("Sorry, input was invalid");
+        }
+
     }
 
     public void scrapeYouTubeChannelIDs(MouseEvent mouseEvent){
