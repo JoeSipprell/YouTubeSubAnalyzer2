@@ -157,7 +157,7 @@ public class Subscription {
             dateC = formatDate(socialBladeDoc);
             dateC_string = new SimpleStringProperty(df.format(dateC).toString());
 
-            String minMax = socialBladeDoc.select("body > div:nth-child(18) > div:nth-child(4) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > p:nth-child(1)").text();
+            String minMax = socialBladeDoc.select("body > div:nth-child(17) > div:nth-child(4) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > p:nth-child(1)").text();
 
             String min = minMax.substring(1, minMax.indexOf('-') - 1);
             String max = minMax.substring(minMax.lastIndexOf('$') + 1);
